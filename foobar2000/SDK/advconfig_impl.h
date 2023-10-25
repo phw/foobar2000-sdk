@@ -138,6 +138,7 @@ public:
 	advconfig_string_factory(const char* p_name, const GUID& p_guid, const GUID& p_parent, double p_priority, const char* p_initialstate, t_uint32 p_prefFlags = 0) : service_factory_single_t<advconfig_entry_string_impl>(p_name, fb2k::advconfig_autoName(p_guid), p_guid, p_parent, p_priority, p_initialstate, p_prefFlags) {}
 
 	void get(pfc::string_base& out) { get_static_instance().get_state(out); }
+	pfc::string8 get() { pfc::string8 temp; get(temp); return temp; }
 	void set(const char* in) { get_static_instance().set_state(in); }
 };
 
@@ -240,7 +241,7 @@ private:
 template<bool is_radio>
 class advconfig_checkbox_factory_cached_ : public advconfig_checkbox_factory_<is_radio> {
 public:
-	advconfig_checkbox_factory_cached_(const char* name, const char* varName, const GUID& guid, const GUID& parent, double priority, bool initial, uint32_t flags = 0) 
+	advconfig_checkbox_factory_cached_(const char* name, const char* varName, const GUID& guid, const GUID& parent, double priority, bool initial, uint32_t flags = 0)
 		: advconfig_checkbox_factory_<is_radio>(name, varName, guid, parent, priority, initial, flags),
 		m_cache(varName, initial) {}
 

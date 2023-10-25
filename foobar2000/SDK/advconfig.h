@@ -24,9 +24,10 @@ public:
 
 	static const GUID guid_root;
 	static const GUID guid_branch_tagging,guid_branch_decoding,guid_branch_tools,guid_branch_playback,guid_branch_display,guid_branch_debug, guid_branch_tagging_general, guid_branch_converter;
+	
 
 	// \since 2.0
-	static const GUID guid_branch_vis;
+	static const GUID guid_branch_vis, guid_branch_general;
 
 	FB2K_MAKE_SERVICE_INTERFACE_ENTRYPOINT(advconfig_entry);
 };
@@ -70,7 +71,7 @@ public:
 	void get_default_state_(pfc::string_base & out);
 
 	enum {
-		flag_is_integer		= 1 << 0, 
+		flag_is_integer		= 1 << 0,
 		flag_is_signed		= 1 << 1,
 	};
 
@@ -93,7 +94,7 @@ public:
 	virtual void enum_value(pfc::string_base & p_out,t_size p_index) = 0;
 	virtual t_size get_state() = 0;
 	virtual void set_state(t_size p_value) = 0;
-	
+
 	FB2K_MAKE_SERVICE_INTERFACE(advconfig_entry_enum,advconfig_entry);
 };
 
