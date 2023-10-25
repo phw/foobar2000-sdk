@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pfc/audio_sample.h>
+#include <pfc/memalign.h>
 #include "exception_io.h"
 
 #ifdef _WIN32
@@ -41,19 +42,22 @@ public:
 		channel_top_back_center		= 1<<16,
 		channel_top_back_right		= 1<<17,
 
-		channel_config_mono = channel_front_center,
-		channel_config_stereo = channel_front_left | channel_front_right,
-		channel_config_2point1 = channel_front_left | channel_front_right | channel_lfe,
-		channel_config_3point0 = channel_front_left | channel_front_right | channel_front_center,
-		channel_config_4point0 = channel_front_left | channel_front_right | channel_back_left | channel_back_right,
-		channel_config_4point1 = channel_front_left | channel_front_right | channel_back_left | channel_back_right | channel_lfe,
-		channel_config_5point0 = channel_front_left | channel_front_right | channel_front_center | channel_back_left | channel_back_right,
-		channel_config_5point1 = channel_front_left | channel_front_right | channel_front_center | channel_lfe | channel_back_left | channel_back_right,
-		channel_config_5point1_side = channel_front_left | channel_front_right | channel_front_center | channel_lfe | channel_side_left | channel_side_right,
-		channel_config_7point1 = channel_config_5point1 | channel_side_left | channel_side_right,
-
 		channels_back_left_right = channel_back_left | channel_back_right,
 		channels_side_left_right = channel_side_left | channel_side_right,
+
+		channel_config_mono = channel_front_center,
+		channel_config_stereo = channel_front_left | channel_front_right,
+		channel_config_2point1 = channel_config_stereo | channel_lfe,
+		channel_config_3point0 = channel_config_stereo | channel_front_center,
+		channel_config_4point0 = channel_config_stereo | channels_back_left_right,
+		channel_config_4point0_side = channel_config_stereo | channels_side_left_right,
+		channel_config_4point1 = channel_config_4point0 | channel_lfe,
+		channel_config_5point0 = channel_config_4point0 | channel_front_center,
+		channel_config_6point0 = channel_config_4point0 | channels_side_left_right,
+		channel_config_5point1 = channel_config_4point0 | channel_front_center | channel_lfe,
+		channel_config_5point1_side = channel_config_4point0_side | channel_front_center | channel_lfe,
+		channel_config_7point1 = channel_config_5point1 | channels_side_left_right,
+
 
 		defined_channel_count = 18,
 	};
@@ -64,14 +68,14 @@ public:
 	static unsigned g_guess_channel_config_xiph(unsigned count);
 
 	//! Helper function; translates audio_chunk channel map to WAVEFORMATEXTENSIBLE channel map.
-	static uint32_t g_channel_config_to_wfx(unsigned p_config);
+	static constexpr uint32_t g_channel_config_to_wfx(unsigned p_config) { return p_config;}
 	//! Helper function; translates WAVEFORMATEXTENSIBLE channel map to audio_chunk channel map.
-	static unsigned g_channel_config_from_wfx(uint32_t p_wfx);
+	static constexpr unsigned g_channel_config_from_wfx(uint32_t p_wfx) { return p_wfx;}
 
 	//! Extracts flag describing Nth channel from specified map. Usable to figure what specific channel in a stream means.
 	static unsigned g_extract_channel_flag(unsigned p_config,unsigned p_index);
 	//! Counts channels specified by channel map.
-	static unsigned g_count_channels(unsigned p_config);
+	static constexpr unsigned g_count_channels(unsigned p_config) { return pfc::countBits32(p_config); }
 	//! Calculates index of a channel specified by p_flag in a stream where channel map is described by p_config.
 	static unsigned g_channel_index_from_flag(unsigned p_config,unsigned p_flag);
 
@@ -202,7 +206,7 @@ public:
 	void set_data_fixedpoint_ms(const void * ptr, size_t bytes, unsigned sampleRate, unsigned channels, unsigned bps, unsigned channelConfig);
 
 	void set_data_floatingpoint_ex(const void * ptr,t_size bytes,unsigned p_sample_rate,unsigned p_channels,unsigned p_bits_per_sample,unsigned p_flags,unsigned p_channel_config);//signed/unsigned flags dont apply
-	static bool is_supported_floatingpoint(unsigned bps) { return bps == 32 || bps == 64; }
+	static bool is_supported_floatingpoint(unsigned bps) { return bps == 32 || bps == 64 || bps == 16 || bps == 24; }
 
 	void set_data_32(const float* src, t_size samples, unsigned nch, unsigned srate);
 	void set_data_32(const float* src, t_size samples, spec_t const & spec );
@@ -217,10 +221,10 @@ public:
 	void pad_with_silence_ex(t_size samples,unsigned hint_nch,unsigned hint_srate);
 	//! Appends silent samples at the end of the chunk. \n
 	//! The chunk must have valid sample rate & channel count prior to this call.
-	//! @param Number of silent samples to append.s
+	//! @param samples Number of silent samples to append.s
 	void pad_with_silence(t_size samples);
 	//! Inserts silence at the beginning of the audio chunk.
-	//! @param Number of silent samples to insert.
+	//! @param samples Number of silent samples to insert.
 	void insert_silence_fromstart(t_size samples);
 	//! Helper; removes N first samples from the chunk. \n
 	//! If the chunk contains fewer samples than requested, it becomes empty.
@@ -236,7 +240,7 @@ public:
 	//! Any existing audio sdata will be discarded. \n
 	//! Expects sample rate and channel count to be set first. \n
 	//! Also allocates memory for the requested amount of data see: set_data_size().
-	//! @param samples Desired duration in seconds.
+	//! @param seconds Desired duration in seconds.
 	void set_silence_seconds( double seconds );
 
 	//! Helper; skips first samples of the chunk updating a remaining to-skip counter.

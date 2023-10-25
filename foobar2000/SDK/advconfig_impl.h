@@ -1,5 +1,7 @@
 #pragma once
 
+// advconfig_impl.h : mainline (foobar2000 v2.0) implementation of advconfig objects
+
 #include "advconfig.h"
 
 //! Standard implementation of advconfig_branch. \n
@@ -241,7 +243,7 @@ private:
 template<bool is_radio>
 class advconfig_checkbox_factory_cached_ : public advconfig_checkbox_factory_<is_radio> {
 public:
-	advconfig_checkbox_factory_cached_(const char* name, const char* varName, const GUID& guid, const GUID& parent, double priority, bool initial, uint32_t flags = 0)
+	advconfig_checkbox_factory_cached_(const char* name, const char* varName, const GUID& guid, const GUID& parent, double priority, bool initial, uint32_t flags = 0) 
 		: advconfig_checkbox_factory_<is_radio>(name, varName, guid, parent, priority, initial, flags),
 		m_cache(varName, initial) {}
 
